@@ -157,7 +157,7 @@ plt.show()
 #Visualizing Duration and Calories
 df.plot(kind='scatter',x ="Duration" , y = 'Calories' ,alpha=0.1)
 </pre><br>
-<img src="images/cal-3.png" height="300px"><br><br>
+<img src="images/cal-3.png" class="responsive"><br><br>
 We can see that when our duration of exercise increase our burning of calories increase.
 <br><br>
 Now time to find Correlation between all features.
@@ -179,8 +179,58 @@ plt.show()
 
 <img src="images/cal-5.png" class="responsive"><br><br>
 
+droping User_ID column,because it is not very usefull in our data.and separating feature and data to 'x' and 'y'.
+<br><br>
+<pre class="prettyprint lang-python">
+x = df.drop(columns=['User_ID','Calories'])
+y = df['Calories']
+</pre>
 
+creating training and testing data.<br>
+<pre class="prettyprint lang-python">
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(x,y,test_size=0.2,random_state=5)
+</pre>
 
+now we are going to do label encoding.
+<br>
+<pre class="prettyprint lang-python">
+#Encoding
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+X_train['Gender'] = le.fit_transform(X_train['Gender'])
+X_test['Gender'] = le.fit_transform(X_test['Gender'])
+X_test
+</pre>
+<img src="images/cal-6.png" class="responsive"><br><br>
+you can see that gender column has changed data. 1 for male and 0 for female. we have done encoding because ml only take numerical data.
+<br>
+
+Now we are building machine learning model.
+<br>using LinearRegression<br>
+<pre class="prettyprint lang-python">
+from sklearn.linear_model import LinearRegression
+lr = LinearRegression()
+lr.fit(X_train,y_train)
+lr.score(X_test,y_test)
+
+</pre>
+accuracy of LinearRegression :- 0.9674975501970083
+<br>
+<br>
+Now we are use a RandomForestRegressor
+<br>
+<pre class="prettyprint lang-python">
+from sklearn.ensemble import RandomForestRegressor
+rf = RandomForestRegressor()
+rf.fit(X_train_sc,y_train)
+rf.score(X_test_sc,y_test)
+</pre>
+accuracy of RandomForestRegressor :- 0.9978687354129694<br><br>
+in compare to linear model randomforest give more accuracy and is is a very good accuracy.
+<br><br>
+
+<a href="https://calfordev.herokuapp.com/">Deployed project on heroku</a>
 
 </div>
 
