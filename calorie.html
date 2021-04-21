@@ -144,8 +144,44 @@ import seaborn as sns
 df = pd.read_csv('calorie.csv')
 df.head(5)
 
-</pre>
-<img src="images/cal-1.png" class="responsive">
+</pre><br>
+<img src="images/cal-1.png" class="responsive"><br><br>
+Let's,visualize the data
+<br><br>
+<pre class="prettyprint lang-python">
+df.hist(bins=50,figsize=(16,16))
+plt.show()
+</pre><br>
+<img src="images/cal-2.png" class="responsive"><br><br>
+<pre class="prettyprint lang-python">
+#Visualizing Duration and Calories
+df.plot(kind='scatter',x ="Duration" , y = 'Calories' ,alpha=0.1)
+</pre><br>
+<img src="images/cal-3.png" height="300px"><br><br>
+We can see that when our duration of exercise increase our burning of calories increase.
+<br><br>
+Now time to find Correlation between all features.
+<pre class="prettyprint lang-python">
+cor_df = df.corr()
+cor_df['Calories'].sort_values(ascending=False)
+</pre><br>
+<img src="images/cal-4.png" height="200px"><br><br>
+
+
+<pre class="prettyprint lang-python">
+#now visualizing correlations
+
+from pandas.plotting import scatter_matrix
+att = ['Gender','Age','Height','Weight','Duration','Heart_Rate','Body_Temp','Calories']
+scatter_matrix(df[att],figsize=(18,12))
+plt.show()
+</pre><br>
+
+<img src="images/cal-5.png" class="responsive"><br><br>
+
+
+
+
 </div>
 
 
