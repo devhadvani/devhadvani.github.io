@@ -100,7 +100,7 @@ li.L1,li.L3,li.L5,li.L7,li.L9 { }
 <div class="container">
 	<div class="row mb-5">
 	<div class="col-lg-7 text-center mx-auto">
-<h2 class="section-heading gsap-reveal-hero mb-0"><strong>Calories Prediction</strong></h2>
+<h2 class="section-heading gsap-reveal-hero mb-0"><strong>Live Sketching</strong></h2>
 <div class="wave gsap-reveal-hero">
 <svg>
 <path d="M10,10 L50,100 L90,50"></path>
@@ -109,116 +109,46 @@ li.L1,li.L3,li.L5,li.L7,li.L9 { }
 </div>
 </div>
 <div class="content" >
-  hello everyone, this project is about calorie prediction with machine learning using python. we will predict calorie based on some features.
-<br><br>
-  Calories in the foods we eat provide energy in the form of heat so that our bodies can function. This means that we need to eat a certain amount of calories just to sustain life. But if we take in too many calories, then we risk gaining weight.
+  hello everyone, this project is about live sketching video using opencv.
   <br><br>
-  So there is need to burn Calories, for burning calories we doing exercises and more. for know how much calories we have burn Today we are going to buid a machine learning model that predict calories based on some data.
-  <br><br>
-  so let's get started
-  <br><br>
-  <a href="data/calorie.csv" download="calorie"><b class="head">Download Dataset</b> </a>
-    <br><br>
-   <b class="head"> Calorie prediction using python</b>
-   <br><br>
-   <pre class="prettyprint lang-python">
-#importing some important libraries and get data
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+  <pre class="prettyprint lang-python">
+    
+import cv2
 
-df = pd.read_csv('calorie.csv')
-df.head(5)
+# function for generating sketch
+def sketch(image):
+    # This will Convert image to grayscale
 
-</pre><br>
-<img src="images/cal-1.png" class="responsive"><br><br>
-Let's,visualize the data
-<br><br>
-<pre class="prettyprint lang-python">
-df.hist(bins=50,figsize=(16,16))
-plt.show()
-</pre><br>
-<img src="images/cal-2.png" class="responsive"><br><br>
-<pre class="prettyprint lang-python">
-#Visualizing Duration and Calories
-df.plot(kind='scatter',x ="Duration" , y = 'Calories' ,alpha=0.1)
-</pre><br>
-<img src="images/cal-3.png" class="responsive"><br><br>
-We can see that when our duration of exercise increase our burning of calories increase.
-<br><br>
-Now time to find Correlation between all features.
-<pre class="prettyprint lang-python">
-cor_df = df.corr()
-cor_df['Calories'].sort_values(ascending=False)
-</pre><br>
-<img src="images/cal-4.png" height="200px"><br><br>
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Clean up image using Guassian Blur
+    gray_blur = cv2.GaussianBlur(gray, (5, 5), 0)
+
+    # Get edges from image
+    edge = cv2.Canny(gray_blur, 20, 50)
+
+    # binarize the image
+    ret, mask = cv2.threshold(edge, 70, 255, cv2.THRESH_BINARY_INV)
+    return mask
 
 
-<pre class="prettyprint lang-python">
-#now visualizing correlations
 
-from pandas.plotting import scatter_matrix
-att = ['Gender','Age','Height','Weight','Duration','Heart_Rate','Body_Temp','Calories']
-scatter_matrix(df[att],figsize=(18,12))
-plt.show()
-</pre><br>
+cam = cv2.VideoCapture(0) # For Webcam initialization
 
-<img src="images/cal-5.png" class="responsive"><br><br>
+while True:
+    ret, frame = cam.read()
+    cv2.imshow('Our Live Sketcher', sketch(frame))
+    if cv2.waitKey(1) == 13: #13 is ASCI for Enter key
+        break
 
-droping User_ID column,because it is not very usefull in our data.and separating feature and data to 'x' and 'y'.
-<br><br>
-<pre class="prettyprint lang-python">
-x = df.drop(columns=['User_ID','Calories'])
-y = df['Calories']
-</pre>
 
-creating training and testing data.<br>
-<pre class="prettyprint lang-python">
-from sklearn.model_selection import train_test_split
-X_train,X_test,y_train,y_test = train_test_split(x,y,test_size=0.2,random_state=5)
-</pre>
-
-now we are going to do label encoding.
+cam.release()           # Release camera, don't forget to release camera 
+cv2.destroyAllWindows() # Destroy all open windows
+  </pre>
 <br>
-<pre class="prettyprint lang-python">
-#Encoding
-from sklearn.preprocessing import LabelEncoder
-le = LabelEncoder()
-X_train['Gender'] = le.fit_transform(X_train['Gender'])
-X_test['Gender'] = le.fit_transform(X_test['Gender'])
-X_test
-</pre>
-<img src="images/cal-6.png" class="responsive"><br><br>
-you can see that gender column has changed data. 1 for male and 0 for female. we have done encoding because ml only take numerical data.
+Output :-
 <br>
-
-Now we are building machine learning model.
-<br>using LinearRegression<br>
-<pre class="prettyprint lang-python">
-from sklearn.linear_model import LinearRegression
-lr = LinearRegression()
-lr.fit(X_train,y_train)
-lr.score(X_test,y_test)
-
-</pre>
-accuracy of LinearRegression :- 0.9674975501970083
-<br>
-<br>
-Now we are use a RandomForestRegressor
-<br>
-<pre class="prettyprint lang-python">
-from sklearn.ensemble import RandomForestRegressor
-rf = RandomForestRegressor()
-rf.fit(X_train_sc,y_train)
-rf.score(X_test_sc,y_test)
-</pre>
-accuracy of RandomForestRegressor :- 0.9978687354129694<br><br>
-in compare to linear model randomforest give more accuracy and is is a very good accuracy.
-<br><br>
-
-<a href="https://calfordev.herokuapp.com/">Deployed project on heroku</a>
-
+<img src="images/sketch.png">
 </div>
 
 
