@@ -62,8 +62,8 @@ li.L1,li.L3,li.L5,li.L7,li.L9 { }
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Live video sketching using python" />
-<meta name="keywords" content="Live video sketching using python opencv " />
+<meta name="description" content="Identify shapes using python opencv" />
+<meta name="keywords" content="Identify shapes using opencv " />
 <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;700&amp;family=Roboto+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/bootstrap.min.css">
 <link rel="stylesheet" href="css/owl.carousel.min.css">
@@ -73,7 +73,7 @@ li.L1,li.L3,li.L5,li.L7,li.L9 { }
 <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
 <link rel="stylesheet" href="css/aos.css">
 <link rel="stylesheet" href="css/style.css">
-<title>Live video sketching using python</title>
+<title>Identify shapes using opencv</title>
 </head>
 <body data-spy="scroll" data-target=".site-navbar-target" data-offset="100">
 <div class="site-mobile-menu site-navbar-target">
@@ -106,7 +106,7 @@ li.L1,li.L3,li.L5,li.L7,li.L9 { }
 <div class="container">
 	<div class="row mb-5">
 	<div class="col-lg-7 text-center mx-auto">
-<h2 class="section-heading gsap-reveal-hero mb-0"><strong>Live Sketching</strong></h2>
+<h2 class="section-heading gsap-reveal-hero mb-0"><strong>Identify Shapes</strong></h2>
 <div class="wave gsap-reveal-hero">
 <svg>
 <path d="M10,10 L50,100 L90,50"></path>
@@ -115,47 +115,107 @@ li.L1,li.L3,li.L5,li.L7,li.L9 { }
 </div>
 </div>
 <div class="content" >
-  hello everyone, this project is about live sketching video using opencv.
+  This code Identify Shapes like circle, triangle, rectangle, square.
   <br><br>
   <pre class="prettyprint lang-python">
     
+import numpy as np
 import cv2
 
-# function for generating sketch
-def sketch(image):
-    # This will Convert image to grayscale
+# Load image
+image = cv2.imread('images/test.png')
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+#convert bgr image into gray
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Clean up image using Guassian Blur
-    gray_blur = cv2.GaussianBlur(gray, (5, 5), 0)
+cv2.imshow('Orignal image',image)
+cv2.waitKey(0)
 
-    # Get edges from image
-    edge = cv2.Canny(gray_blur, 20, 50)
+ret, th = cv2.threshold(gray, 127, 255, 1)
 
-    # binarize the image
-    ret, mask = cv2.threshold(edge, 70, 255, cv2.THRESH_BINARY_INV)
-    return mask
+# Extract Contours from image
+contours, hierarchy = cv2.findContours(th.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
+for cnt in contours:
+    
+    # Get approximate polygons
+    approx = cv2.approxPolyDP(cnt, 0.01*cv2.arcLength(cnt,True),True)
+    
+    # for triangle
+    if len(approx) == 3:
+        shape_name = "Triangle"
+        cv2.drawContours(image,[cnt],0,(0,255,0),-1)
+        
+        # Find center to put text at the center
+        M = cv2.moments(cnt)
+        cx = int(M['m10'] / M['m00'])
+        cy = int(M['m01'] / M['m00'])
+        
+        cv2.putText(image, shape_name, (cx-50, cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1)
+    
+    elif len(approx) == 4:
+        x,y,w,h = cv2.boundingRect(cnt)
+        M = cv2.moments(cnt)
+        cx = int(M['m10'] / M['m00'])
+        cy = int(M['m01'] / M['m00'])
+        
+        # Check to see if 4-side polygon is square or rectangle
+        # cv2.boundingRect returns the top left and then width and 
+        if abs(w-h) <= 3:
+            shape_name = "Square"
+            
+            # Find contour center to place text at the center
+            cv2.drawContours(image, [cnt], 0, (0, 125 ,255), -1)
+            cv2.putText(image, shape_name, (cx-50, cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1)
+        else:
+            shape_name = "Rectangle"
+            
+            # Find contour center to place text at the center
+            cv2.drawContours(image, [cnt], 0, (0, 0, 255), -1)
+            M = cv2.moments(cnt)
+            cx = int(M['m10'] / M['m00'])
+            cy = int(M['m01'] / M['m00'])
+            cv2.putText(image, shape_name, (cx-50, cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1)
+            
+    elif len(approx) == 10:
+        shape_name = "Star"
+        cv2.drawContours(image, [cnt], 0, (255, 255, 0), -1)
+        M = cv2.moments(cnt)
+        cx = int(M['m10'] / M['m00'])
+        cy = int(M['m01'] / M['m00'])
+        cv2.putText(image, shape_name, (cx-50, cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1)
+        
+        
+        
+    elif len(approx) >= 15:
+        shape_name = "Circle"
+        cv2.drawContours(image, [cnt], 0, (0, 255, 255), -1)
+        M = cv2.moments(cnt)
+        cx = int(M['m10'] / M['m00'])
+        cy = int(M['m01'] / M['m00'])
+        cv2.putText(image, shape_name, (cx-50, cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1)
 
-
-cam = cv2.VideoCapture(0) # For Webcam initialization
-
-while True:
-    ret, frame = cam.read()
-    cv2.imshow('Our Live Sketcher', sketch(frame))
-    if cv2.waitKey(1) == 13: #13 is ASCI for Enter key
-        break
-
-
-cam.release()           # Release camera, don't forget to release camera 
-cv2.destroyAllWindows() # Destroy all open windows
+    cv2.imshow('Identifying Shapes',image)
+    cv2.waitKey(0)
+    
+cv2.destroyAllWindows()
   </pre>
 <br>
-Output :-
+<b>About cv2.threshold(src, thresh, maxval, type[, dst]):<br></b>
+.   The function applies fixed-level thresholding to a multiple-channel array. The function is typically<br>
+.   used to get a bi-level (binary) image out of a grayscale image ( #compare could be also used for<br>
+.   this purpose) or for removing a noise, that is, filtering out pixels with too small or too large<br>
+.   values. There are several types of thresholding supported by the function. They are determined by<br>
+.   type parameter.
+
 <br>
 
-<img src="images/sk.PNG" class="responsive"><br><br>
+<br>
+Output 
+<br>
+
+<img src="images/shape1.PNG" class="responsive"><br><br>
+<img src="images/shape2.PNG" class="responsive"><br><br>
 <br><br>
 </div>
 
